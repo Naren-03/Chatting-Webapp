@@ -4,15 +4,22 @@
 
 <h3>Home Page</h3>
 
+<div>
 
+    <a href = "{%url 'create-room'%}"> Create Room </a>
+    
 <div> 
     {% for i in rooms %}
            {% comment %} <h4> {{i.id}} -- <a href="/room/{{i.id}}/"> {{i.name}} </a></h4> 
            
            Rather then using Url we can use name of that url  {% endcomment %}
+
+           <span> @{{i.host.username}} </span>
            <h4> {{i.id}} -- <a href="{%url 'room' i.id%}"> {{i.name}} </a></h4> 
+           <small> {{i.topic.name}} </small>
+            <hr>
     {% endfor %}
 </div>
-
+</div>
 
 {% endblock content %}
