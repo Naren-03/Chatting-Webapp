@@ -21,6 +21,10 @@
         {{message}} 
     {% endif %} 
 
+    {% if message.tags == 'warning' %} 
+        {{message}} 
+    {% endif %} 
+
     {%endfor%}
 
     {%block content%} 

@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .models import Room,Topic
+from .models import Room,Topic,Message
 from django.http import HttpResponse
 from .forms import RoomForm
 from django.contrib.auth.models import User
@@ -7,6 +7,9 @@ from django.contrib.auth import authenticate,login,logout
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.forms import UserCreationForm
+
+
 # Create your views here.
 
 # rooms = [
@@ -17,10 +20,9 @@ from django.contrib import messages
 
 
 def loginpage(request):
-    context = {}
-
+    page = 'loginpage'
     if request.method == 'POST':
-        username = request.POST.get('username')
+        username = request.POST.get('username').lower()
         password = request.POST.get('password')
 
         try:
@@ -36,13 +38,30 @@ def loginpage(request):
         else:
             messages.info(request,'Username OR Password not exist')
 
+    context = {'page':page}
+
     return render(request,'app/login_register.html',context)
 
 def logoutpage(request):
     logout(request)
     return redirect('home')
 
+def registerpage(request):
+    form = UserCreationForm()
 
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.username = user.username.lower()
+            user.save()
+            login(request,user)
+            return redirect('home')
+        else:
+            messages.warning(request,'Error During Registration 400')
+
+    context = {'form':form}
+    return render(request,'app/login_register.html',context)
 def home(request):
 
     # Filtering the data 
@@ -62,7 +81,17 @@ def home(request):
 
 def room(request,pk):
     rooms = Room.objects.get(id=pk)
-    params = {'room':rooms}
+    room_msg = rooms.message_set.all().order_by('-created')
+
+    if request.method == 'POST':
+        message = Message.objects.create(
+            user = request.user,
+            room = rooms,
+            body = request.POST.get('body'),
+
+        )
+        return redirect('room',pk=rooms.id)
+    params = {'room':rooms,'room_msg':room_msg}
     return render(request,'app/room.html',params)
 
 
