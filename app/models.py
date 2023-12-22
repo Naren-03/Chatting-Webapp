@@ -17,7 +17,7 @@ class Room(models.Model):
     topic = models.ForeignKey(Topic, on_delete=models.SET_NULL,null=True) 
     name = models.CharField(max_length=200)
     description = models.TextField(null=True,blank=True) #null = True means it can be empty allowed
-    # participants = 
+    participants = models.ManyToManyField(User,related_name='participants',blank=True)
     updated = models.DateTimeField(auto_now=True) #auto_now take snapshot at every time we save 
     created = models.DateTimeField(auto_now_add=True)#auto_now_add take snapshot at only once time first time at created.
 
@@ -36,5 +36,9 @@ class Message(models.Model):
     updated = models.DateTimeField(auto_now=True) 
     created = models.DateTimeField(auto_now_add=True)
 
+    
+    class Meta:
+        ordering = ['-updated','-created'] #using - it will reverse the order
+        
     def __str__(self):
         return self.body
